@@ -9,6 +9,7 @@ import time
 import subprocess
 from datetime import datetime
 from pathlib import Path
+import os
 
 # Config
 LIST_URL = "http://zzxszy.people.cn/GB/458759/index.html"
@@ -36,7 +37,7 @@ PROVINCES = [
 
 # Paths
 BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "public" / "data"
+DATA_DIR = BASE_DIR / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 NOTICES_FILE = DATA_DIR / "notices.json"
 STATS_FILE = DATA_DIR / "stats.json"
@@ -45,10 +46,11 @@ def fetch_page(url):
     """Fetch a page using Firecrawl for better content extraction"""
     try:
         import subprocess
+        api_key = os.environ.get('FIRECRAWL_API_KEY', 'fc-***')
         result = subprocess.run([
             'curl', '-s', '-m', '15',
             '-X', 'POST', 'https://api.firecrawl.dev/v1/scrape',
-            '-H', 'Authorization: Bearer fc-***',  # Will be replaced by env var in Actions
+            '-H', f'Authorization: Bearer {api_key}',
             '-H', 'Content-Type: application/json',
             '-d', json.dumps({"url": url, "formats": ["markdown"]})
         ], capture_output=True, text=True, timeout=20)
